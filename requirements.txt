@@ -1,0 +1,6 @@
+graphviz==0.5.2
+matplotlib==1.5.3
+networkx==1.11
+pydot==1.2.3
+pydotplus==2.0.2
+PyQt5==5.7
