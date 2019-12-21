@@ -29,12 +29,15 @@ class Parser:
         self.nodes_table=None
         self.edges_table=None
 
+    #Set the token list and the code list
     def set_tokens_list_and_code_list(self,x,y):
         self.code_list = y
         self.tokens_list=x
         self.tmp_index = 0
+        #Sets the next token
         self.token = self.tokens_list[self.tmp_index]
 
+    #
     def next_token(self):
         if(self.tmp_index==len(self.tokens_list)-1):
             return False  # we have reachd the end of the list
@@ -52,9 +55,9 @@ class Parser:
     def stmt_sequence(self):
         t=self.statement()
         p=t
-        while self.token==';':
+        while self.token=='SEMICOLON':
             q=Node(None,None)
-            self.match(';')
+            self.match('SEMICOLON')
             q=self.statement()
             if q == None:
                 break
@@ -67,19 +70,19 @@ class Parser:
         return t
 
     def statement(self):
-        if self.token=='if':
+        if self.token=='IF':
             t=self.if_stmt()
             return t
-        elif self.token=='repeat':
+        elif self.token=='REPEAT':
             t=self.repeat_stmt()
             return t
-        elif self.token=='identifier':
+        elif self.token=='IDENTIFIER':
             t=self.assign_stmt()
             return t
-        elif self.token=='read':
+        elif self.token=='READ':
             t=self.read_stmt()
             return t
-        elif self.token=='write':
+        elif self.token=='WRITE':
             t=self.write_stmt()
             return t
         else:
@@ -89,19 +92,19 @@ class Parser:
 
     def if_stmt(self):
         t=Node('if',self.code_list[self.tmp_index])
-        if self.token=='if':
-            self.match('if')
+        if self.token=='IF':
+            self.match('IF')
             t.set_children(self.exp())
-            self.match('then')
+            self.match('THEN')
             t.set_children(self.stmt_sequence())
-            if self.token=='else':
+            if self.token=='ELSE':
                 t.set_children(self.stmt_sequence())
-            self.match('end')
+            self.match('END')
         return t
 
     def exp(self):
         t=self.simple_exp()
-        if self.token=='<' or self.token=='>' or self.token=='=':
+        if self.token=='LESSTHAN' or self.token=='MORETHAN' or self.token=='EQUAL':
             p=Node(self.token,self.code_list[self.tmp_index])
             p.set_children(t)
             t=p
@@ -110,16 +113,16 @@ class Parser:
         return t
 
     def comparison_op(self):
-        if self.token=='<':
-            self.match('<')
-        elif self.token=='>':
-            self.match('>')
-        elif self.token=='=':
-            self.match('=')
+        if self.token=='LESSTHAN':
+            self.match('LESSTHAN')
+        elif self.token=='MORETHAN':
+            self.match('MORETHAN')
+        elif self.token=='EQUAL':
+            self.match('EQUAL')
 
     def simple_exp(self):
         t=self.term()
-        while self.token=='+' or self.token=='-':
+        while self.token=='PLUS' or self.token=='MINUS':
             p=Node('Opk',self.code_list[self.tmp_index])
             p.set_children(t)
             t=p
@@ -128,14 +131,14 @@ class Parser:
         return t
 
     def addop(self):
-        if self.token=='+':
-            self.match('+')
-        elif self.token=='-':
-            self.match('-')
+        if self.token=='PLUS':
+            self.match('PLUS')
+        elif self.token=='MINUS':
+            self.match('MINUS')
 
     def term(self):
         t=self.factor()
-        while self.token=='*' or self.token=='/':
+        while self.token=='MULT' or self.token=='DIV':
             p=Node('Opk',self.code_list[self.tmp_index])
             p.set_children(t)
             t=p
@@ -144,22 +147,22 @@ class Parser:
         return t
 
     def mulop(self):
-        if self.token=='*':
-            self.match('*')
-        elif self.token=='/':
-            self.match('/')
+        if self.token=='MULT':
+            self.match('MULT')
+        elif self.token=='DIV':
+            self.match('DIV')
 
     def factor(self):
-        if self.token=='(':
-            self.match('(')
+        if self.token=='OPENBRACKET':
+            self.match('OPENBRACKET')
             t=self.exp()
-            self.match(')')
-        elif self.token=='number':
+            self.match('CLOSEDBRACKET')
+        elif self.token=='NUMBER':
             t=Node('ConstK',self.code_list[self.tmp_index])
-            self.match('number')
-        elif self.token=='identifier':
+            self.match('NUMBER')
+        elif self.token=='IDENTIFIER':
             t=Node('Idk',self.code_list[self.tmp_index])
-            self.match('identifier')
+            self.match('IDENTIFIER')
         else:
             raise ValueError('SyntaxError',self.token)
             return False
@@ -167,29 +170,29 @@ class Parser:
 
     def repeat_stmt(self):
         t=Node('repeat',self.code_list[self.tmp_index])
-        if self.token=='repeat':
-            self.match('repeat')
+        if self.token=='REPEAT':
+            self.match('REPEAT')
             t.set_children(self.stmt_sequence())
-            self.match('until')
+            self.match('UNTIL')
             t.set_children(self.exp())
         return t
 
     def assign_stmt(self):
         t=Node('assign',self.code_list[self.tmp_index])
-        self.match('identifier')
-        self.match(':=')
+        self.match('IDENTIFIER')
+        self.match('ASSIGN')
         t.set_children(self.exp())
         return t
 
     def read_stmt(self):
         t=Node('read',self.code_list[self.tmp_index])
-        self.match('read')
-        self.match('identifier')
+        self.match('READ')
+        self.match('IDENTIFIER')
         return t
 
     def write_stmt(self):
         t=Node('write',self.code_list[self.tmp_index])
-        self.match('write')
+        self.match('WRITE')
         t.set_children(self.exp())
         return t
 

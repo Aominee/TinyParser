@@ -75,13 +75,22 @@ class TinyParserWidget(QWidget):
 
     def submitted(self):
         #Create a TinyScanner object, and pass to it our Tiny Code in the constructor
-        scanned_code = TinyScanner(self.input_code.toPlainText())
+        #scanned_code = TinyScanner(self.input_code.toPlainText())
         #Call scan() on the object to start Scanning
-        scanned_code.scan()
+        #scanned_code.scan()
+        self.code_list = []
+        self.tokens_list = []
+
+        for eachLine in self.input_code.toPlainText().splitlines():
+        	lineParts = eachLine.split(',')
+        	self.code_list.append(lineParts[0].strip())
+        	self.tokens_list.append(lineParts[1].strip())
+
+        
         #Create Parser object with empty constructor
         parse_code = Parser()
         #Set the token list and code list???
-        parse_code.set_tokens_list_and_code_list(scanned_code.tokens_list, scanned_code.code_list)
+        parse_code.set_tokens_list_and_code_list(self.tokens_list, self.code_list)
         #Call run() on the parser object
         parse_code.run()
         #Retrieve the nodes_table and edges table from the Parser object
@@ -97,7 +106,9 @@ class TinyParserWidget(QWidget):
         self.G.add_edges_from(edges_list)
         #Clear the tables nodes_table and edges_table and..
         parse_code.clear_tables()
-        #Call the draw() function
+
+        #self.code_list.clear()
+        #self.tokens_list.clear()
         self.draw()
 
 app = QApplication(sys.argv)
